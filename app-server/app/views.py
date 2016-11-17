@@ -1,7 +1,10 @@
+import logging
 from app import app
 from app.service import APIService
 from flask import render_template
+from flask import Flask, request, abort, redirect, url_for, jsonify, make_response
 
+log = logging.getLogger(__name__)
 service = APIService()
 
 @app.route('/')
@@ -20,16 +23,24 @@ def home():
 @app.route('/remove_task')
 def remove_task():
     service.remove_task()
-    return  { 'op': True }
+    return jsonify({'op': True}), 201
 
 @app.route('/update_task')
 def update_task():
     service.update_task()
+    return jsonify({'op': True}), 201
 
-@app.route('/add_task')
+@app.route('/add_task', methods=['POST'])
 def add_task():
-    service.add_task()
+    log.debug('Adding task')
+    if not request.json or 'action' not in request.json:
+        abort(400)
+    else:
+        action = request.json['action']
+        json_response = service.add_task(action)
+        log.debug('Response: %s', json_response)
+        return jsonify(json_response), 201
 
-@app.route('/static/<directory:directory>/<path:path>')
+@app.route('/static/<string:directory>/<path:path>')
 def send_static(directory, path):
     return send_from_directory(directory, path)

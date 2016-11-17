@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!-- CDN links to popular libs -->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+
 <style>
 {
     box-sizing: border-box;
@@ -114,76 +121,85 @@ input {
 }
 </style>
 </head>
-
-<body>
-<div id="myDIV" class="header">
-  <h2>My To Do List</h2>
-  <input type="text" id="myInput" placeholder="Title...">
-  <span onclick="newElement()" class="addBtn">Add</span>
-</div>
 
-<ul id="myUL">
-	{% for post in tasks %}
-	<li> {{post.action}}</li>
-	{% endfor %}
-</ul>
+<body>
+  <div id="myDIV" class="header">
+    <h2>My To Do List</h2>
+    <input type="text" id="taskInput" placeholder="Title...">
+    <span onclick="createNewTask()" class="addBtn">New Task</span>
+  </div>
+
+  <ul id="myUL">
+    {% for task in tasks %}
+      <li> 
+        {{task.action}}
+        <span class="close"> ✘ </span>
+      </li>
+    {% endfor %}
+  </ul>
 </body>
+
 <script>
 
-// Create a "close" button and append it to each list item
-var myNodelist = document.getElementsByTagName("LI");
-var i;
-for (i = 0; i < myNodelist.length; i++) {
-  var span = document.createElement("SPAN");
-  var txt = document.createTextNode("\u00D7");
-  span.className = "close";
-  span.appendChild(txt);
-  myNodelist[i].appendChild(span);
-}
-
-// Click on a close button to hide the current list item
-var close = document.getElementsByClassName("close");
-var i;
-for (i = 0; i < close.length; i++) {
-  close[i].onclick = function() {
-    var div = this.parentElement;
-    div.style.display = "none";
-  }
-}
-
-// Add a "checked" symbol when clicking on a list item
-var list = document.querySelector('ul');
-list.addEventListener('click', function(ev) {
-  if (ev.target.tagName === 'LI') {
-    ev.target.classList.toggle('checked');
-  }
-}, false);
-
-// Create a new list item when clicking on the "Add" button
-function newElement() {
-  var li = document.createElement("li");
-  var inputValue = document.getElementById("myInput").value;
-  var t = document.createTextNode(inputValue);
-  li.appendChild(t);
+/*
+ * Create a new <li> task when clicking on the "Add" button
+ */
+function createNewTask() {
+  var inputValue = $("#taskInput").val();
   if (inputValue === '') {
-    alert("You must write something!");
+      alert("You must write something!");
   } else {
-    document.getElementById("myUL").appendChild(li);
-  }
-  document.getElementById("myInput").value = "";
+    console.log('Creating new task', inputValue);
 
-  var span = document.createElement("SPAN");
-  var txt = document.createTextNode("\u00D7");
-  span.className = "close";
-  span.appendChild(txt);
-  li.appendChild(span);
+    $.ajax({
+      url: '/add_task',
+      method: 'POST',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      data: JSON.stringify({ action: inputValue })
+    })
+    .done(function (result) {
+      var newTask = result.task;
+      $('<li/>', {
+        id: newTask.id,
+        text: newTask.action,
+      }).appendTo('#myUL')
 
-  for (i = 0; i < close.length; i++) {
-    close[i].onclick = function() {
-      var div = this.parentElement;
-      div.style.display = "none";
-    }
+      // Add the span
+      $('<span/>', {
+        text: "✘ ",
+        "class": "close"
+      })
+      .appendTo('#' + newTask.id)
+      .click(function() {
+          $(this).parent('li').remove();
+      });
+
+      // Remove the input that you just entered
+      $("#taskInput").val('');
+    });
+
   }
 }
+
+$(document).ready(function () {
+
+  // Every close button when clicked will delete itself from the list
+  // and submit a call to the API to self-delete
+  $('.close').each(function (i, el) {
+    el.onclick = function() {
+        $(this).parent('li').remove();
+    };
+  })
+
+  // Add a "checked" symbol when clicking on a list item
+  var list = document.querySelector('ul');
+  list.addEventListener('click', function(ev) {
+    if (ev.target.tagName === 'LI') {
+      ev.target.classList.toggle('checked');
+    }
+  }, false);
+
+});
 </script>
 </html>

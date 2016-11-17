@@ -17,7 +17,7 @@ db = SQLAlchemy(app)
 
 class Task(db.Model):
     __tablename__ = 'tasks'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     action = db.Column(db.String(80), nullable=False)
 
     def __init__(self, action):
@@ -27,25 +27,25 @@ class Task(db.Model):
         return '<User %r>' % self.name
 
     def to_dict(self):
-        return dict(action=self.action)
+        return dict(action=self.action, id=self.id)
 
 
 @app.route('/tasks', methods=['GET'])
-def products():
+def get_all_tasks():
     print 'getting'
     return jsonify(dict(tasks=Task.query.all()))
 
 
-@app.route('/tasks/<int:sku>', methods=['GET'])
-def product(sku):
-    prods=Task.query.filter(sku=sku)
+@app.route('/tasks/<int:id>', methods=['GET'])
+def get_task_by_id(id):
+    prods=Task.query.filter(id=id)
     if len(prods) == 0:
         abort(404)
     return jsonify({'task': prods.first()})
 
 
 @app.route('/tasks', methods=['POST'])
-def make_product():
+def create_task():
     if not request.json or 'action' not in request.json:
         abort(400)
     print("Creating Task", request.json)
@@ -60,7 +60,7 @@ def update_task(sku):
     if not request.json or 'action' not in request.json:
         abort(400)
 
-    tasks =Task.query.filter(sku=sku)
+    tasks =Task.query.filter(id=sku)
     if len(tasks) == 0:
         abort(404)
     for task in tasks:
@@ -70,7 +70,7 @@ def update_task(sku):
 @app.route('/tasks/<int:sku>', methods=['DELETE'])
 def remove_task(sku):
     print('deleting tasks', sku)
-    tasks =Task.query.filter(sku=sku)
+    tasks =Task.query.filter(id=sku)
     if len(tasks) == 0:
         abort(404)
     for task in tasks:
