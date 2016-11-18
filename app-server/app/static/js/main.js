@@ -94,6 +94,7 @@ function createNewTask() {
   }
 }
 
+/* Common Handler code */
 function onCloseHandler () {
   var liTag = $(this).parent('li');
   deleteTask(liTag);
@@ -112,19 +113,22 @@ function onUpdateHandler (event) {
     spanTag.show();
     liTag.toggleClass('checked', false);
   } else {
+    // Why do we need this?
     inputTag.css('display', 'inline');
     spanTag.hide();
     liTag.toggleClass('checked', false);
   }
+  // What is the purpose of this?
   event.stopPropagation();
   event.cancelBubble = true;  // Deprecated but for legacy browsers
 }
 
+/* This is the entry point for our dynamic behavior */
 $(document).ready(function () {
-
   // Every close button when clicked will delete itself from the list
-  // and submit a call to the API to self-delete
+  // and submit a call to the API to self-delete.
   $('.close').each(function (i, el) {
+    // Why do we need this bind?
     el.onclick = onCloseHandler.bind(this)
   })
 
@@ -134,7 +138,6 @@ $(document).ready(function () {
 
   $('li').each(function (i, el) {
     el.onclick = function() {
-      console.log(this);
       var inputTag = $(this).children('input');
       if (!inputTag.is(':visible')) {
         $(this).toggleClass('checked');
