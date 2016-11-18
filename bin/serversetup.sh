@@ -1,27 +1,34 @@
 printf "\n*******************************************************"
 printf "\nInstalling gunicorn ...\n"
+
 sudo apt-get --yes --force-yes install gunicorn
+gunicorn --version
 
-printf "\n*******************************************************"
-printf "\nInstalling git and pulling Public Repo ...\n"
-sudo apt-get --yes --force-yes install git
-sudo rm eztodo -r
-git clone https://github.com/fyeung86/eztodo.git
+printf "\nSetting up Gunicorn Configurationr\n"
 
-printf "\nSetting up Application Server?\n"
-# sudo cp eztodo/api-server/conf/api_server_nginx.conf /etc/nginx/conf.d/                                               
-sudo cp eztodo/app-server/conf/app_server_nginx.conf /etc/nginx/sites-available/
 sudo rm /etc/nginx/sites-enabled/default
+sudo cp eztodo/app-server/conf/app_server_nginx.conf /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/app_server_nginx.conf /etc/nginx/sites-enabled/app_server_nginx.conf
+
 sudo service nginx restart
+
+printf "\nMoving Repos Assets to www...\n"
+
 sudo mkdir /home/www
 sudo rm /home/www/app-server -r
 sudo rm /home/www/api-server -r
 sudo mv ~/eztodo/app-server/ /home/www/
 sudo mv ~/eztodo/api-server/ /home/www/
-cd /home/www/app-server/ && nohup gunicorn app:app -b localhost:8001 & disown
-cd /home/www/api-server/ && nohup gunicorn flaskr:app -b localhost:5000 & disown
 
+printf "\nStarting Application Servers...\n"
+
+cd /home/www/app-server/ && nohup gunicorn app:app -b localhost:8000 & disown
+cd /home/www/api-server/ && nohup gunicorn flaskr:app -b localhost:5001 & disown
+
+printf "\nGunicorn Processes...\n"
+ps aux|grep gunicorn
 
 printf "\nFINISHED!\n"
+
+printf "\nTry hitting the public domain now!\n"
 
