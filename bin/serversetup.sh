@@ -13,6 +13,7 @@ printf "\nSetting up Application Server?\n"
 sudo cp eztodo/app-server/conf/app_server_nginx.conf /etc/nginx/sites-available/
 sudo rm /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/app_server_nginx.conf /etc/nginx/sites-enabled/app_server_nginx.conf
+sudo service nginx restart
 sudo mkdir /home/www
 sudo rm /home/www/app-server -r
 sudo rm /home/www/api-server -r
