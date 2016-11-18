@@ -18,8 +18,9 @@ sudo rm /home/www/app-server -r
 sudo rm /home/www/api-server -r
 sudo mv ~/eztodo/app-server/ /home/www/
 sudo mv ~/eztodo/api-server/ /home/www/
-cd /home/www/app-server/ && nohup gunicorn app:app -b localhost:8001
-cd /home/www/api-server/ && nohup gunicorn flaskr:app -b localhost:5000
+cd /home/www/app-server/ && nohup gunicorn app:app -b localhost:8001 & disown
+cd /home/www/api-server/ && nohup gunicorn flaskr:app -b localhost:5000 & disown
+
 
 printf "\nFINISHED!\n"
 
