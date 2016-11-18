@@ -1,7 +1,8 @@
+import os
 import logging
 from app import app
 from app.service import APIService
-from flask import render_template
+from flask import render_template, send_from_directory
 from flask import Flask, request, abort, redirect, url_for, jsonify, make_response
 
 log = logging.getLogger(__name__)
@@ -53,4 +54,5 @@ def task_operation():
 
 @app.route('/static/<string:directory>/<path:path>')
 def send_static(directory, path):
-    return send_from_directory(directory, path)
+    log.info('Static File Dir:%s, Path:%s', directory, path)
+    return send_from_directory('static', os.path.join(directory, path))
