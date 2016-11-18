@@ -68,9 +68,10 @@ ul li.checked::before {
 
 /* Style the close button */
 .updater {
-    position: absolute;
-    right: 100;
-    top: 0;
+    display: inline;
+    # position: absolute;
+    # top: 0;
+    # right: 25;
     padding: 12px 16px 12px 16px
 }
 
@@ -81,9 +82,10 @@ ul li.checked::before {
 
 /* Style the close button */
 .close {
-    position: absolute;
-    right: 0;
-    top: 0;
+    display: inline;
+    # position: absolute;
+    # right: 0;
+    # top: 0;
     padding: 12px 16px 12px 16px
 }
 
@@ -133,6 +135,12 @@ input {
     background-color: #bbb;
 }
 
+.updateAction {
+  display: none;
+  # position: absolute;
+  # top:4px;
+  padding: 3px;
+}
 
 </style>
 </head>
@@ -147,15 +155,35 @@ input {
   <ul id="myUL">
     {% for task in tasks %}
       <li id="{{task.task_id}}"> 
-        <span class="action"> {{task.action}} </span>
-        <span class="updater"> ↺  </span>
         <span class="close"> ✘ </span>
+        <span class="updater"> ↺  </span>
+        <span class="action"> {{task.action}} </span>
+        <input class="updateAction" value="{{task.action}}"></input>
       </li>
     {% endfor %}
   </ul>
 </body>
 
 <script>
+
+/*
+ * Updates a <li> task when clicking on the "redo" button
+ */
+
+function updateTask (taskId, action) {
+    $.ajax({
+      url: '/taskop',
+      method: 'POST',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      data: JSON.stringify({ op: "UPDATE", 
+                             action: action, 
+                             task_id: taskId})
+    })
+    .done(function (result) {
+      console.log(result);
+    })
+}
 
 /*
  * Deletes a <li> task when clicking on the "X" button
@@ -198,7 +226,6 @@ function createNewTask() {
       var newTask = result.task;
       $('<li/>', {
         id: newTask.task_id,
-        text: newTask.action,
       }).appendTo('#myUL')
 
       // Add the span
@@ -211,6 +238,47 @@ function createNewTask() {
           var liTag = $(this).parent('li');
           deleteTask(liTag);
       });
+
+      $('<span/>', {
+        text: "↺ ",
+        "class": "updater",
+      })
+      .appendTo('#' + newTask.task_id)
+      .click(function() {
+          console.log(this);
+          var liTag = $(this).parent('li');
+          var spanTag = $(this).siblings('.action');
+          var inputTag = $(this).siblings('.updateAction');
+          console.log(liTag);
+          console.log(spanTag);
+          console.log(inputTag);
+          if (inputTag.is(':visible')) {
+            var taskId = parseInt(liTag.attr('id'));
+            var action = inputTag.val()
+            updateTask(taskId, action);
+            inputTag.hide();
+            spanTag.text(action);
+            spanTag.show();
+            liTag.toggleClass('checked', false);
+          } else {
+            inputTag.show();
+            spanTag.hide();
+            liTag.toggleClass('checked', false);
+          }
+        });
+
+      $('<span/>', {
+        text: newTask.action,
+        "class": "action"
+      })
+      .appendTo('#' + newTask.task_id)
+
+      $('<input/>', {
+        value: newTask.action,
+        "class": "updateAction"
+      })
+      .appendTo('#' + newTask.task_id)
+      .hide()
 
       // Remove the input that you just entered
       $("#taskInput").val('');
@@ -230,14 +298,37 @@ $(document).ready(function () {
     };
   })
 
-  // Add a "checked" symbol when clicking on a list item
-  //XXX: Make this jquery
-  var list = document.querySelector('ul');
-  list.addEventListener('click', function(ev) {
-    if (ev.target.tagName === 'LI') {
-      ev.target.classList.toggle('checked');
-    }
-  }, false);
+  $('.updater').each(function (i, el) {
+    el.onclick = function() {
+      console.log(this);
+        var liTag = $(this).parent('li');
+        var spanTag = $(this).siblings('.action');
+        var inputTag = $(this).siblings('.updateAction');
+        if (inputTag.is(':visible')) {
+          var taskId = parseInt(liTag.attr('id'));
+          var action = inputTag.val()
+          updateTask(taskId, action);
+          inputTag.hide();
+          spanTag.text(action);
+          spanTag.show();
+          liTag.toggleClass('checked', true);
+        } else {
+          inputTag.show();
+          spanTag.hide();
+          liTag.toggleClass('checked', false);
+        }
+    };
+  })
+
+  $('li').each(function (i, el) {
+    el.onclick = function() {
+      console.log(this);
+      var inputTag = $(this).children('input');
+      if (!inputTag.is(':visible')) {
+        $(this).toggleClass('checked');
+      }
+    };
+  });
 });
 </script>
 </html>
