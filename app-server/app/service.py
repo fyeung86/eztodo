@@ -5,7 +5,7 @@ log = logging.getLogger(__name__)
 
 class APIService(object):
 
-    def __init__(self, url='localhost', port=5000):
+    def __init__(self, url='localhost', port=5001):
         self.url = url
         self.port = port
 
@@ -18,11 +18,14 @@ class APIService(object):
             return json_response['tasks']
         raise ValueError('no tasks found')
 
-    def remove_task(self, task_id):
+    def delete_task(self, task_id):
         if isinstance(task_id, int):
             endpoint = 'http://{}:{}/tasks/{}'.format(self.url, self.port, task_id)
             response = requests.delete(endpoint)
-            return True
+            if response.status_code in [200, 201]:
+                json_body = response.json()
+                return json_body
+            return {"op": False}
         raise ValueError('task_id must be an integer')
 
     def add_task(self, action):
@@ -38,8 +41,11 @@ class APIService(object):
     def update_task(self, task_id, action):
         if isinstance(task_id, int):
             endpoint = 'http://{}:{}/tasks/{}'.format(self.url, self.port, task_id)
-            response = requests.put(endpoint, {
+            response = requests.put(endpoint, json={
                 'action': action
             })
-            return True
+            if response.status_code in [200, 201]:
+                json_body = response.json()
+                return json_body
+            return {"op": False}
         raise ValueError('task_id must be an integer')

@@ -16,7 +16,6 @@ class FlaskrTestCase(unittest.TestCase):
     def test_delete(self):
         rv = self.app.delete('/tasks')
         json_response = json.loads(rv.data)
-        print json_response
         assert json_response["op"]
 
     def test_empty_db(self):
@@ -24,17 +23,40 @@ class FlaskrTestCase(unittest.TestCase):
         json_response = json.loads(rv.data)
         assert not json_response["tasks"]
 
-    def test_insert(self):
+    def test_insert_and_get(self):
         rv = self.app.post(
             '/tasks',
             data=json.dumps({"action": "Go to Grocery Store"}),
             headers={'content-type':'application/json'}
         )
-        print(rv)
-        print(rv.data)
         json_response = json.loads(rv.data)
         assert json_response["task"]
         assert json_response["op"]
+
+        rv = self.app.get('/tasks/1')
+        json_response = json.loads(rv.data)
+        assert json_response["task"]
+        # assert json_response["op"]
+
+    def test_insert_and_update(self):
+        rv = self.app.post(
+            '/tasks',
+            data=json.dumps({"action": "Go to Grocery Store"}),
+            headers={'content-type':'application/json'}
+        )
+        json_response = json.loads(rv.data)
+        assert json_response["task"]
+        assert json_response["op"]
+
+        task_id = json_response["task"]["task_id"]
+        rv = self.app.put(
+            '/tasks/1',
+            data=json.dumps({"action": "Go to Grocery Store and get cheese"}),
+            headers={'content-type':'application/json'}
+        )
+        json_response = json.loads(rv.data)
+        assert json_response["task"]
+        # assert json_response["op"]
 
     def tearDown(self):
         os.close(self.db_fd)
