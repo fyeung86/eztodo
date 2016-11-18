@@ -162,7 +162,6 @@ input {
  */
 function deleteTask (liTag) {
     var taskId = liTag.id;
-    console.log(liTab, id);
     $.ajax({
       url: '/taskop',
       method: 'POST',
