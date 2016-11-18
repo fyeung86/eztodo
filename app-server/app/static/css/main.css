@@ -127,4 +127,5 @@ input {
 .updateAction {
   display: none;
   padding: 3px;
+  float: none;
 }
