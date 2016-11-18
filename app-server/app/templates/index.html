@@ -161,13 +161,15 @@ input {
  * Deletes a <li> task when clicking on the "X" button
  */
 function deleteTask (liTag) {
-    var taskId = liTag.id;
+    var taskId = liTag.attr('id');
     $.ajax({
       url: '/taskop',
       method: 'POST',
       contentType: 'application/json; charset=utf-8',
       dataType: 'json',
-      data: JSON.stringify({ op: "DELETE", task_id: taskId})
+      data: JSON.stringify({ op: "DELETE", 
+                             action: "Some Action",
+                             task_id: parseInt(taskId)})
     })
     .done(function (result) {
       liTag.remove();

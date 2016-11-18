@@ -9,15 +9,7 @@ service = APIService()
 
 @app.route('/')
 def home():
-    #tasks = service.all_tasks()
-    tasks = [
-            {'action': 'Hit the gym'},
-            {'action': 'Pay bills'},
-            {'action': 'Meet George'},
-            {'action': 'Buy Eggs'},
-            {'action': 'Read a book'},
-            {'action': 'Organize office'}
-    ]
+    tasks = service.all_tasks()
     return render_template('index.html', tasks=tasks)
 
 @app.route('/remove_task', methods=['POST'])
@@ -32,12 +24,12 @@ def update_task():
 
 @app.route('/taskop', methods=['POST'])
 def task_operation():
-    log.debug('Adding task')
     if (not request.json 
             or 'op' not in request.json
             or 'action' not in request.json):
         abort(400)
 
+    log.debug('Task Operation %s', request.json)
     op = request.json['op']
     if op == 'ADD':
         action = request.json['action']
