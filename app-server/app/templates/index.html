@@ -204,7 +204,7 @@ function createNewTask() {
         text: "✘ ",
         "class": "close"
       })
-      .appendTo('#' + newTask.id)
+      .appendTo('#' + newTask.task_id)
       .click(function() {
           var liTag = $(this).parent('li');
           deleteTask(liTag);
