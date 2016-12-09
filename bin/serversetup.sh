@@ -16,7 +16,7 @@ sudo rm /etc/nginx/sites-available/api_server_nginx.conf
 sudo cp eztodo/app-server/conf/app_server_nginx.conf /etc/nginx/sites-available/
 # sudo cp eztodo/api-server/conf/api_server_nginx.conf /etc/nginx/sites-available/
 sudo ln -s /etc/nginx/sites-available/app_server_nginx.conf /etc/nginx/sites-enabled/app_server_nginx.conf
-sudo ln -s /etc/nginx/sites-available/api_server_nginx.conf /etc/nginx/sites-enabled/api_server_nginx.conf
+# sudo ln -s /etc/nginx/sites-available/api_server_nginx.conf /etc/nginx/sites-enabled/api_server_nginx.conf
 
 sudo service nginx restart
 
