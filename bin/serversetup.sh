@@ -8,6 +8,8 @@
 
 # DANGEROUS but not for new instances
 sudo pkill -f httpd
+sudo pkill -f python3 
+
 sudo rm /etc/nginx/sites-enabled/*
 sudo rm /etc/nginx/sites-available/app_server_nginx.conf
 sudo rm /etc/nginx/sites-available/api_server_nginx.conf
